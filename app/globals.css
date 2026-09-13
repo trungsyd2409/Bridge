@@ -1,26 +1,203 @@
 @import "tailwindcss";
 
+/* ============================================================
+   BẢNG MÀU BRIDGE
+
+   App có hai giao diện: TỐI (mặc định) và SÁNG.
+   Người dùng đổi ở màn Hồ sơ, mục Giao diện.
+
+   Cách hoạt động:
+   - Màu thật khai báo thành biến CSS ở :root (tối) và [data-theme="light"] (sáng)
+   - Khối @theme inline ở dưới trỏ tên màu Tailwind vào các biến đó
+   - "inline" là bắt buộc. Không có nó, Tailwind v4 sẽ nhét thẳng giá trị màu
+     vào class lúc build, và đổi giao diện lúc chạy sẽ không ăn.
+
+   Bảng màu SÁNG giữ nguyên đúng file Figma anh Nguyễn chốt 11/9, không đổi
+   một mã nào. Bảng màu TỐI là phần thêm.
+   ============================================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+
+  --c-brand: #3b82ff;
+  --c-brand-dark: #2563eb;
+  --c-brand-soft: #16233f;
+
+  --c-bg: #0a1020;
+  --c-surface: #121a2e;
+  --c-surface-2: #18223a;
+
+  --c-text: #e9edf7;
+  --c-muted: #96a0b8;
+  --c-line: #26314d;
+
+  --c-danger: #ff5b6a;
+  --c-danger-soft: #3b1520;
+  --c-danger-card: #4d1a26;
+  --c-warn-card: #3d3017;
+
+  /* Card bài học: trên nền tối thì dùng sắc độ trầm, không dùng pastel */
+  --c-lesson-coral: #4a2a2c;
+  --c-lesson-mint: #1b3a38;
+  --c-lesson-green: #1e3529;
+  --c-lesson-blue: #1f3555;
+
+  --c-ring: rgba(59, 130, 255, 0.45);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --c-brand: #006ffd;
+  --c-brand-dark: #0961f5;
+  --c-brand-soft: #eaf2ff;
+
+  --c-bg: #f8f9fe;
+  --c-surface: #ffffff;
+  --c-surface-2: #ffffff;
+
+  --c-text: #1f2024;
+  --c-muted: #71727a;
+  --c-line: #d2d6dc;
+
+  --c-danger: #ed3241;
+  --c-danger-soft: #ffe2e5;
+  --c-danger-card: #ffbcc1;
+  --c-warn-card: #fef3c7;
+
+  --c-lesson-coral: #fcada4;
+  --c-lesson-mint: #d6fcf1;
+  --c-lesson-green: #e7f4e8;
+  --c-lesson-blue: #8bc4ff;
+
+  --c-ring: rgba(0, 111, 253, 0.35);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-brand: var(--c-brand);
+  --color-brand-dark: var(--c-brand-dark);
+  --color-brand-soft: var(--c-brand-soft);
+
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+
+  --color-text: var(--c-text);
+  --color-muted: var(--c-muted);
+  --color-line: var(--c-line);
+
+  --color-danger: var(--c-danger);
+  --color-danger-soft: var(--c-danger-soft);
+  --color-danger-card: var(--c-danger-card);
+  --color-warn-card: var(--c-warn-card);
+
+  --color-lesson-coral: var(--c-lesson-coral);
+  --color-lesson-mint: var(--c-lesson-mint);
+  --color-lesson-green: var(--c-lesson-green);
+  --color-lesson-blue: var(--c-lesson-blue);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ============================================================
+   NỀN VÀ CHỮ
+   ============================================================ */
+
+html,
+body {
+  background: var(--c-bg);
+  color: var(--c-text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Nền tối có một vệt sáng rất nhạt phía trên, để màn hình không bị phẳng lì.
+   Giao diện sáng không cần nên tắt đi. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(60rem 32rem at 50% -14rem, rgba(59, 130, 255, 0.16), transparent 70%);
+}
+[data-theme="light"] body::before {
+  display: none;
+}
+
+/* Nội dung nằm trên vệt sáng đó */
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Đổi giao diện thì màu chuyển mềm, không giật.
+   Ai bật "giảm chuyển động" trong máy thì tắt hết. */
+@media (prefers-reduced-motion: no-preference) {
+  body,
+  body * {
+    transition-property: background-color, border-color, color;
+    transition-duration: 180ms;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ============================================================
+   MẤY LỚP DÙNG LẠI NHIỀU CHỖ
+   ============================================================ */
+
+/* Nhãn chữ nhỏ in hoa đặt phía trên tiêu đề. Bản GPT dùng nhiều kiểu này,
+   nó làm đầu màn hình trông có chủ ý hơn hẳn một dòng tiêu đề trơ trọi. */
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+
+/* Viền mảnh cho thẻ, chỉ hiện ở giao diện sáng. Nền tối đã đủ tương phản
+   giữa surface và bg nên thêm viền là thừa và rối. */
+[data-theme="light"] .vien-the {
+  border: 1px solid var(--c-line);
+}
+
+/* Vòng sáng khi dùng bàn phím tab qua các nút, cho phần tiếp cận */
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--c-ring);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+/* Bỏ mũi tên tăng giảm của ô nhập số ở màn Kiểm tra và Thêm ca làm */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Ô ngày giờ trên nền tối: icon lịch mặc định của Chrome là màu đen, không nhìn thấy */
+:root input[type="date"]::-webkit-calendar-picker-indicator,
+:root input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) opacity(0.7);
+}
+[data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="light"] input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: none;
+}
+
+/* Hộp chọn trên nền tối cũng phải đổi, nếu không chữ đen trên nền đen */
+select option {
+  background: var(--c-surface);
+  color: var(--c-text);
 }
